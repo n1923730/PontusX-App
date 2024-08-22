@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rimraf dist && npx tsc",
-    "prstart": "npm run build",
+    "prestart": "npm run build",
     "start": "node ./dist",
     "preserve": "npm run build",
     "serve": "npx tsc -w & nodemon ./dist"
@@ -17,13 +17,17 @@
     "@deltadao/nautilus": "^1.0.2",
     "@types/express": "^4.17.21",
     "@types/node": "^22.3.0",
+    "chart.js": "^4.4.3",
     "ejs": "^3.1.10",
     "ethers": "^5.4.4",
     "express": "^4.19.2",
+    "jquery": "^3.7.1",
+    "jsdom": "^24.1.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.30",
     "nodemon": "^3.1.4"
   }
 }

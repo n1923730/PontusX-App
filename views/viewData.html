@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<script type = "text/javascript" src="http://localhost:8000/views/myChart.js"></script>
+<script src="myChart.js"></script>
+<h1>Datenraum-Explorer</h1>
+</head>
+
+<body>
+    <p>Wir konnten die Daten pullen: </p>
+
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        const ctx = document.getElementById('myChart');
+        chartData = <%- passChartData() %>;
+        new Chart(ctx, chartData);
+        document.body.innerHTML = "<p>dataForCharts =" + chartData + " </p>";
+    </script>
+
+
+    <div style="width: 800px;"><canvas id="viewData"></canvas></div>
+    
+
+</body>
+
+<p>Test</p>
+
+</html>
