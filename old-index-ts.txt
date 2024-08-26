@@ -175,3 +175,12 @@ app.get("/showData", (req: Request, res: Response) => {
         document.body.innerHTML = "<p>Ende der JS-HTML Funktion</p>"
     </script>
     <noscript>Sorry, your browser does not support JavaScript!</noscript>
+
+
+/////////////////////////////////not working: ///////////////////////////////////////////////////////////////////////
+<script>
+        const ctx = document.getElementById('myChart');
+        chartData = <%- passChartData() %>;
+        new Chart(ctx, chartData);
+        document.body.innerHTML = "<p>dataForCharts =" + chartData + " </p>";
+    </script>
