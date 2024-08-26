@@ -1,8 +1,32 @@
 //import {LineController, LineElement, PointElement, CategoryScale, LinearScale} from 'chart.js';
 
-//import("chart.js");
+import("chart.js");
+//const Chart = require('chart.js/auto');
 
-  export function passChartData() {
+const ctx = document.getElementById('myChart');
+console.log("etx gefunden");
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    datasets: [{
+      label: '# of Votes',
+      data: [12, 19, 3, 5, 2, 3],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+
+
+
+  /*export function passChartData() {
   var Chart = require('chart.js/auto');
   var labels = ['a', 'b', 'c'];
   var datapoints = [1, 2, 3];
@@ -30,7 +54,7 @@
   //});
 
   return dataForCharts;
-  }
+  } */
 
 
 

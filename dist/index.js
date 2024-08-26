@@ -3,29 +3,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.datapoints = exports.labels = void 0;
 const ethers_1 = require("ethers");
 const nautilus_1 = require("@deltadao/nautilus");
-//import { Chart } from 'chart.js';
-//import { ChartItem } from 'chart.js/auto';
-//import 'jquery'
 const ethers = require("ethers");
 const ejs = require('ejs');
 const express = require('express');
 const Chart = require('chart.js/auto');
 var path = require('path');
-//var $ = require("jquery");
 var jsdom = require('jsdom');
 var $ = require('jquery')(new jsdom.JSDOM().window);
-//const ChartItem = require('chart.js/auto')
 const port = 8000;
 const app = express();
 app.set('viewEngine', 'ejs');
 app.use('/views', express.static(path.resolve('./views')));
-console.log("path.resolve(views= " + path.resolve('./views'));
 app.use(express.static(path.join(__dirname, 'views')));
 app.engine('html', ejs.renderFile);
-exports.labels = ['a', 'b', 'c'];
-exports.datapoints = [1, 2, 3];
+exports.labels = [];
+exports.datapoints = [];
 async function getDataSet() {
-    //const provider = new ethers.JsonRpcProvider('https://rpc.dev.pontus-x.eu');
     const provider = new ethers_1.providers.JsonRpcProvider('https://rpc.dev.pontus-x.eu');
     const signer = new ethers_1.Wallet('21ea41b4daed53bb966f0127d14b5e53e91014410da8fb267b351794a8bbb83c', provider);
     console.log("created wallet");
@@ -50,23 +43,34 @@ async function getDataSet() {
     const accessUrl = await nautilus.access({ assetDid: 'did:op:0fa5657f7382ef32a82325160a5430b79be701a361dfa0f27e1c3f22a96ddaf3' });
     console.log("got URL: " + accessUrl);
     const data = await fetch(accessUrl);
+    return data;
     console.log("hier.");
+    data.json().then((text) => {
+        console.log("Empfangene Daten: " + text);
+        return text;
+    });
     data.text().then((text) => {
-        datenpunkte = text;
-        console.log("Empfangene Daten: " + datenpunkte);
-        return datenpunkte;
+        console.log("Empfangene Daten: " + text);
+        return text;
     });
 }
-function createView(datenpunkte) {
-    //var datenpunkte = getDataSet();
+async function createView(datenpunkte, res) {
     datenpunkte.then((text) => {
         if (text == undefined || text == null) {
-            createView(datenpunkte);
+            createView(datenpunkte, res);
         }
         else {
-            console.log("This is going to the frontend: ");
-            console.log(text);
-            return text;
+            let dataPoints = text;
+            dataPoints.forEach((pair) => {
+                exports.labels.push(pair.id);
+                exports.datapoints.push(pair.value);
+            });
+            console.log("datapoints = " + exports.datapoints);
+            console.log("labels = " + exports.labels);
+            if (exports.datapoints != undefined) {
+                console.log('now rendering the html');
+                res.render(path.resolve('./views/viewData.html'), { Labels: exports.labels, Datapoints: exports.datapoints });
+            }
         }
     });
 }
@@ -81,41 +85,8 @@ app.post('/', function (req, res) {
 app.get("/", (req, res) => {
     res.sendFile(path.resolve('./views/index.html'));
 });
-app.get("/showData", (req, res) => {
-    var datenpunkte = getDataSet();
-    const text = createView(datenpunkte);
-    console.log('now rendering html');
-    let dataPoints = [];
-    if (text != undefined) {
-        exports.datapoints = JSON.parse(text);
-    }
-    dataPoints.forEach((pair) => {
-        exports.labels.push(pair.id);
-        exports.datapoints.push(pair.value);
+app.get("/showData", async (req, res) => {
+    getDataSet().then((resp) => {
+        createView(resp.json(), res);
     });
-    /*
-const dataForChart = {
-labels: labels,
-datasets: [{
-    label: 'Fuellstand',
-    data: datapoints,
-    fill: false,
-    borderColor: 'rgb(75, 192, 192)',
-    tension: 0.1
-}]
-};
-
-$( document ).ready(function() {
-    console.log( "ready!" );
-})
-
-var ctx = $('.canvas');
-console.log("found Element: " + ctx.length);
-console.log("current jquery object: " + $);
-//var ctx = document.getElementById('line-chart');
-const config = new Chart(ctx, {
-    type: 'line',
-    data: dataForChart,
-}); */
-    res.render(path.resolve('./views/viewData.html'), { Labels: exports.labels, Datapoints: exports.datapoints }); //ersetze aabbcc mit text, das kann jedoch nicht gerendert werden.
 });
