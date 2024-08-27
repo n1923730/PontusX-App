@@ -47,10 +47,34 @@
 
     <div style="width: 800px;"><canvas id="viewData"></canvas></div>
     
-    
-    
 <noscript>Sorry, your browser does not support JavaScript!</noscript>
-    
+
+<p>C2D-Algorithmus der den Mittelwert berechnet: </p>
+
+<form action="/viewData" method="post">
+    <button name="startC2D" value="send">start C2D-Algorithm</button>
+</form>
+
+
+<% if(C2D==1) { %>
+<form action="/viewData" method="post">
+    <button name="RequestStatus" value="send">request Status</button>
+</form>
+<% } %>
+
+<% if(C2D==2) { %>
+    <p>Aktueller Status: <%= Status %></p>
+<% } %>
+
+<% if(C2D==5) { %>
+    <p>Der berechnete Mittelwert beträgt </p>
+    <%= Result %>
+<% } %>
+  
+
+<form action="/getBack" method="post">
+    <button name="getBack2" value="send">back</button>
+</form>
 
 </body>
 </html>
