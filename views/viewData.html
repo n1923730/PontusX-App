@@ -29,7 +29,7 @@
         data: {
             labels: [<%= Labels %>],
             datasets: [{
-            label: 'Fuellstand',
+            label: 'Füllstand',
             data:  [<%= Datapoints %>],
             borderWidth: 1
             }]
@@ -56,17 +56,23 @@
 </form>
 
 
-<% if(C2D==1) { %>
-<form action="/viewData" method="post">
+<% if(C2D>=1) { %>
+<form action="/getStatus" method="post">
     <button name="RequestStatus" value="send">request Status</button>
 </form>
 <% } %>
 
-<% if(C2D==2) { %>
+<% if(C2D>=2) { %>
     <p>Aktueller Status: <%= Status %></p>
 <% } %>
 
-<% if(C2D==5) { %>
+<% if(C2D==3) { %>
+    <form action="/getResult" method="post">
+        <button name="RequestResult" value="send">request Result</button>
+    </form>
+<% } %>
+
+<% if(C2D==4) { %>
     <p>Der berechnete Mittelwert beträgt </p>
     <%= Result %>
 <% } %>

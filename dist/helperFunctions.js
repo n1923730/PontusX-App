@@ -1,0 +1,130 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.status = exports.avg = exports.c2d = exports.datapoints = exports.labels = exports.compute_job = exports.nautilus = exports.signer = exports.provider = void 0;
+exports.init = init;
+exports.getDataSet = getDataSet;
+exports.createView = createView;
+exports.startC2D = startC2D;
+exports.getStatus = getStatus;
+exports.getResult = getResult;
+const ethers_1 = require("ethers");
+const nautilus_1 = require("@deltadao/nautilus");
+exports.labels = [];
+exports.datapoints = [];
+exports.c2d = 0;
+exports.avg = 0;
+exports.status = "";
+////////////////////////////////////////////////////////////////Communication with Devnet//////////////////////////////////////////////////////////////////
+//initialises Config to Pontus-X Devnet Parameters
+async function init() {
+    exports.provider = new ethers_1.providers.JsonRpcProvider('https://rpc.dev.pontus-x.eu');
+    exports.signer = new ethers_1.Wallet('21ea41b4daed53bb966f0127d14b5e53e91014410da8fb267b351794a8bbb83c', exports.provider);
+    const customConfig = {
+        chainId: 32456,
+        network: 'pontusx',
+        metadataCacheUri: 'https://aquarius.dev.pontus-x.eu',
+        nodeUri: 'https://rpc.dev.pontus-x.eu',
+        providerUri: 'https://provider.dev.pontus-x.eu',
+        subgraphUri: 'https://subgraph.dev.pontus-x.eu',
+        oceanTokenAddress: '0xdF171F74a8d3f4e2A789A566Dce9Fa4945196112',
+        oceanTokenSymbol: 'OCEAN',
+        fixedRateExchangeAddress: '0x8372715D834d286c9aECE1AcD51Da5755B32D505',
+        dispenserAddress: '0x5461b629E01f72E0A468931A36e039Eea394f9eA',
+        nftFactoryAddress: '0xFdC4a5DEaCDfc6D82F66e894539461a269900E13',
+        providerAddress: '0x68C24FA5b2319C81b34f248d1f928601D2E5246B'
+    };
+    exports.nautilus = await nautilus_1.Nautilus.create(exports.signer, customConfig);
+    console.log("initialisation done");
+    return ("done");
+}
+//consumes Dataset given it's DID
+async function getDataSet() {
+    const accessUrl = await exports.nautilus.access({ assetDid: 'did:op:0fa5657f7382ef32a82325160a5430b79be701a361dfa0f27e1c3f22a96ddaf3' });
+    console.log("got URL: " + accessUrl);
+    const data = await fetch(accessUrl);
+    return data;
+}
+//accumulates the data to show in diagramm
+async function createView(datenpunkte) {
+    datenpunkte.then((text) => {
+        while (text == undefined)
+            ;
+        try {
+            let dataPoints = text;
+            dataPoints.forEach((pair) => {
+                exports.labels.push(pair.id);
+                exports.datapoints.push(pair.value);
+            });
+        }
+        catch (_a) {
+            console.log("Error occured: data format is not as specified!");
+        }
+        console.log("datapoints = " + exports.datapoints);
+        console.log("labels = " + exports.labels);
+        if (exports.datapoints != undefined) {
+            console.log('now rendering the html');
+        }
+    });
+}
+//start computing C2D, given Dataset- & Algorithm-DIDs. Dataset must have Algorithm whitelisted before!
+async function startC2D() {
+    if (exports.nautilus == undefined) {
+        console.log("Error: Nautilus is undefined");
+        return;
+    }
+    exports.compute_job = await exports.nautilus.compute({
+        dataset: {
+            did: 'did:op:ea6890f851252e0646ab4887c40603182e42ab684f597f5731f02cfe9efe5be0'
+        },
+        algorithm: {
+            did: 'did:op:7e36f8d3c52faaa2f5aa9336b05ce9d9e499188b1408ebdeb9c0834c9b94c450'
+        }
+    });
+    exports.c2d = 1;
+    return exports.compute_job;
+}
+//check on Status of C2D Job
+async function getStatus() {
+    if (exports.compute_job != undefined) {
+        console.log("jobId = " + exports.compute_job[0].jobId);
+        exports.status = exports.compute_job[0].statusText;
+        console.log("statustext = " + exports.compute_job[0].statusText);
+        var result = await exports.nautilus.getComputeStatus({
+            jobId: exports.compute_job[0].jobId,
+            providerUri: 'https://provider.dev.pontus-x.eu'
+        });
+        if (result != undefined) {
+            if (result.length > 0) {
+                exports.status = result[0].statusText;
+            }
+            else {
+                exports.status = result.statusText;
+            }
+            console.log("Status = " + exports.status);
+            exports.c2d = 2;
+        }
+        if (exports.status == 'Job finished') {
+            exports.c2d = 3;
+        }
+    }
+}
+//get Results of C2D Job
+async function getResult() {
+    var res;
+    var result = exports.nautilus.getComputeResult({
+        jobId: exports.compute_job[0].jobId,
+        providerUri: 'https://provider.dev.pontus-x.eu'
+    });
+    result.then(async (url) => {
+        console.log("url = " + url);
+        res = fetch(url);
+        res.then((fetchedData) => {
+            console.log(fetchedData);
+            console.log(typeof fetchedData);
+            exports.c2d = 4;
+        });
+    });
+    if (res == undefined) {
+        console.log("res still undefined, try again in a few seconds.");
+    }
+}
