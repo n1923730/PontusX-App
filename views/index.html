@@ -5,19 +5,29 @@
 </head>
 
 <body>
-<p>First things first: get the Data!</p>
+<p>Das Wichtigste zuerst: den Datensatz anfragen:</p>
 
 <form action="/showData" method="post">
-    <button name="getData" value="send">get Data</button>
+    <label for="showDid">DID des Datensatzes:</label><br>
+    <input type="text" id="showDid" name="showDid"><br><br>
+    <button name="getData" value="send">Daten anfragen</button>
 </form>
 
-<p>Then some functions to only be used in specific cases:</p>
+<br><br>
 
-<p>Alter a Dataset, for it to be used with C2D:</p>
-<p>Remember to change the DID!</p>
+<p>Dann einige Funktionen, die nur verwenden sollte, wer weiß was sie tun:</p>
+
+<p>Setze einen Algorithmus auf die C2D-Whitelist eines Datensatzes:</p>
+<p>Beachte: sowohl der Datensatz, als auch der Algorithmus müssen für C2D freigegeben sein!</p>
 
 <form action="/publishData" method="post">
-    <button name="postData" value="send">Alter Dataset</button>
+    <label for="dataDid">DID des Datensatzes:</label><br>
+    <input type="text" id="dataDid" name="dataDid"><br><br>
+
+    <label for="algoDid">DID des C2D-Algorithmus:</label><br>
+    <input type="text" id="algoDid" name="algoDid"><br><br>
+
+    <button name="setWhitelist" value="send">Start</button>
 </form>
 
 </body>

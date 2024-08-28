@@ -8,6 +8,7 @@ import { AssetBuilder, Nautilus } from '@deltadao/nautilus';
 export interface DataPoints {
     id: string;
     value: number;
+    timestamp: string;
 }
 
 //////////////////////////////////////////////////////////////////global variables///////////////////////////////////////////////////////////////////////
@@ -22,7 +23,7 @@ export var labels: string[] = [];
 export var datapoints: number[] = [];
 
 export var c2d: number = 0;
-export var avg: number = 0;
+export var average: number = 0;
 export var status: string = "";
 
 ////////////////////////////////////////////////////////////////Communication with Devnet//////////////////////////////////////////////////////////////////
@@ -56,11 +57,16 @@ export async function init() {
 
 
 //consumes Dataset given it's DID
-export async function getDataSet() {
-    const accessUrl = await nautilus.access({ assetDid: 'did:op:0fa5657f7382ef32a82325160a5430b79be701a361dfa0f27e1c3f22a96ddaf3'});
-    console.log("got URL: " + accessUrl);
-    const data = await fetch(accessUrl);
-    return data;
+export async function getDataSet(showDid: string) {
+    try {
+        const accessUrl = await nautilus.access({ assetDid:showDid });    //'did:op:0fa5657f7382ef32a82325160a5430b79be701a361dfa0f27e1c3f22a96ddaf3'});
+        console.log("got URL: " + accessUrl);
+        const data = await fetch(accessUrl);
+        return data;
+    } catch (err) {
+        console.log("Error occured. Its probably due to an invalid DID, or because the Dataset was only to be used for C2D");
+        console.log(err);
+    }
 }
 
 
@@ -109,7 +115,6 @@ export async function startC2D() {
 //check on Status of C2D Job
 export async function getStatus(){
     if(compute_job != undefined){
-        console.log("jobId = " + compute_job[0].jobId);
         status = compute_job[0].statusText;
         var result = await nautilus.getComputeStatus({ 
             jobId: compute_job[0].jobId, 
@@ -134,23 +139,32 @@ export async function getStatus(){
 //get Results of C2D Job
 export async function getResult() {
     var res;
-    var result = nautilus.getComputeResult({
+    var url = await nautilus.getComputeResult({
         jobId: compute_job[0].jobId,
         providerUri: 'https://provider.dev.pontus-x.eu'
       })
 
-    result.then(async (url) => {
-        console.log("url = " + url);
-        res = await fetch(url);
-        if(res.body != null) {
-            //for await (const chunk of res.body) {
-                // Do something with each "chunk"
-            //}
-        }
     
+    console.log("got result data url = " + url);
+    res = await fetch(url);
+    if(res.headers.get('content-type') == 'application/octet-stream'){
+        const reader = res.body?.getReader();
+        var text = "";
+        while(true){
+            const {value, done} = await reader!.read();
+            if(done) break;
+            text += await (new TextDecoder().decode(value));
 
-    if(res == undefined) {
-        console.log("res still undefined, try again in a few seconds.");
+        }
+        console.log('received the following text = ' + text);
+        let start = text.indexOf(':') + 2;
+        let end = text.length - 1;
+        average = text.substring(start, end) as unknown as number; 
+        c2d = 4;
+        
+
+        if(res == undefined) {
+            console.log("res still undefined, try again in a few seconds.");
+        }
     }
-})
 }

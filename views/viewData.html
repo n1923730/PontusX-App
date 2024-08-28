@@ -6,7 +6,7 @@
 
 <body>
     <h1>Datenraum-Explorer</h1>
-    <p>Wir konnten die Daten pullen: </p>
+    <p>Wir konnten die Daten erwerben: </p>
 
     <ul>
         <% for(var i=0; i<Datapoints.length; i++) { %>
@@ -45,20 +45,21 @@
     </script>
 
 
-    <div style="width: 800px;"><canvas id="viewData"></canvas></div>
+    <div style="width: 600px;"><canvas id="viewData"></canvas></div>
     
-<noscript>Sorry, your browser does not support JavaScript!</noscript>
+<noscript>Fehler: ihr Browser unterstützt kein JavaScript!</noscript>
 
 <p>C2D-Algorithmus der den Mittelwert berechnet: </p>
 
 <form action="/viewData" method="post">
-    <button name="startC2D" value="send">start C2D-Algorithm</button>
+    <button name="startC2D" value="send">starte C2D-Algorithmus</button>
 </form>
 
 
 <% if(C2D>=1) { %>
+    <p>Der Prozess wurde gestartet, und dauert circa eine bis maximal zehn Minuten. Hier können Sie den Status abfragen: </p>
 <form action="/getStatus" method="post">
-    <button name="RequestStatus" value="send">request Status</button>
+    <button name="RequestStatus" value="send">Status abfragen</button>
 </form>
 <% } %>
 
@@ -68,18 +69,17 @@
 
 <% if(C2D==3) { %>
     <form action="/getResult" method="post">
-        <button name="RequestResult" value="send">request Result</button>
+        <button name="RequestResult" value="send">Ergebnis abfragen</button>
     </form>
 <% } %>
 
 <% if(C2D==4) { %>
-    <p>Der berechnete Mittelwert beträgt </p>
-    <%= Result %>
+    <p>Der berechnete Mittelwert beträgt <%= Avg %></p>
 <% } %>
   
 
 <form action="/getBack" method="post">
-    <button name="getBack2" value="send">back</button>
+    <button name="getBack2" value="send">zurück</button>
 </form>
 
 </body>
