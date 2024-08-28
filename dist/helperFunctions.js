@@ -127,7 +127,6 @@ async function getResult() {
         var text = "";
         while (true) {
             const { value, done } = await reader.read();
-            console.log(value);
             if (done)
                 break;
             text += await (new TextDecoder().decode(value));

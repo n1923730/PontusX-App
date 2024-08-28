@@ -59,13 +59,6 @@ app.post('/publishData', async function(req, res) {
     } 
     res.redirect("/publishData")
    
-    //This can also be used to create a completly new asset
-    //const assetBuilder = new AssetBuilder();
-    //const networkConfig = NETWORK_CONFIGS;
-    //const pricingConfig = PRICING_CONFIGS;
-    //await publishComputeDataset( nautilus, networkConfig, pricingConfig, signer);
-
-    
 });
 
 //Homepage Button -> get Data
@@ -96,7 +89,7 @@ app.get("/showData", async (req: Request, res: Response) => {
 
 //show Data Button -> start C2D: starts C2D Computation
 app.post('/viewData', async function(req, res) {
-    console.log("StartC2D was called. This may take a while.");
+    console.log("StartC2D was called. This might take a while.");
     if(f.compute_job == undefined) {
         await f.startC2D();
         while(f.compute_job == undefined);
